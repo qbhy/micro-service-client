@@ -73,7 +73,7 @@ class TradeCenterService extends Service
 
     public function getServiceName(): string
     {
-        return env('TRADE_CENTER_PREFIX', 'settlement-internal');
+        return config('micro-service-client.trade_center_prefix', 'settlement-internal');
     }
 
 

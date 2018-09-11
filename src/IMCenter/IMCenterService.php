@@ -13,7 +13,7 @@ class IMCenterService extends Service
 {
     public function getServiceName(): string
     {
-        return env('IM_CENTER_PREFIX', 'im');
+        return config('micro-service-client.im_center_prefix', 'im');
     }
 
 

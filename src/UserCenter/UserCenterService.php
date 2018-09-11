@@ -18,7 +18,7 @@ class UserCenterService extends Service
 
     public function getServiceName(): string
     {
-        return env('USER_CENTER_PREFIX', 'ucenter-internal');
+        return config('micro-service-client.user_center_prefix', 'ucenter-internal');
     }
 
 

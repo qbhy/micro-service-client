@@ -3,6 +3,7 @@
 namespace Qbhy\MicroServiceClient;
 
 use Qbhy\MicroServiceClient\ApplicationCenter\AppCenterService;
+use Qbhy\MicroServiceClient\TradeCenter\IMCenterService;
 use Qbhy\MicroServiceClient\TradeCenter\TradeCenterService;
 use Qbhy\MicroServiceClient\UserCenter\JwtParser\AuthHeaders;
 use Qbhy\MicroServiceClient\UserCenter\JwtParser\InputSource;
@@ -20,13 +21,29 @@ use \Qbhy\MicroServiceClient\UserCenter\JwtParser\Parser as ParserManager;
 
 class ServiceProvider extends BaseServiceProvider
 {
-    protected $baseUri;
+    protected $config;
 
-    public function __construct($app)
+    /**
+     * Setup the config.
+     */
+    protected function setupConfig()
     {
-        parent::__construct($app);
+        $source = realpath(__DIR__ . '/../config/micro-service-client.php');
 
-        $this->baseUri = env('USER_CENTER_BASE_URI');
+        if ($this->app->runningInConsole()) {
+            $this->publishes([$source => base_path('config/micro-service-client.php')], 'micro-service-client');
+        }
+
+        $this->mergeConfigFrom($source, 'micro-service-client');
+    }
+
+    protected function getConfig()
+    {
+        if (null !== $this->config) {
+            $this->config = $this->app->make('config')->get('micro-service-client');
+        }
+
+        return $this->config;
     }
 
     /**
@@ -36,26 +53,41 @@ class ServiceProvider extends BaseServiceProvider
      */
     public function register()
     {
+        $this->setupConfig();
+
         $this->app->singleton(ServiceGuard::class, function () {
-            return new ServiceGuard(env('USER_CENTER_APP_ID'), env('USER_CENTER_APP_SECRET'), env('USER_CENTER_APP_TOKEN'));
+
+            $config    = $this->getConfig();
+            $default   = $this->app->make(Request::class)->header($config['app_header'], $config['default']);
+            $appConfig = $config['applications'][$default];
+
+            return new ServiceGuard($appConfig['id'], $appConfig['secret'], $appConfig['token']);
         });
 
         $this->registerUserCenter();
         $this->registerTradeCenter();
         $this->registerApplicationService();
+        $this->registerImCenter();
     }
 
     public function registerApplicationService()
     {
         $this->app->singleton(AppCenterService::class, function () {
-            return new AppCenterService(env('APP_CENTER_BASE_URI', $this->baseUri), $this->app->make(ServiceGuard::class));
+            return new AppCenterService($this->getConfig()['base_uri'], $this->app->make(ServiceGuard::class));
         });
     }
 
     public function registerTradeCenter()
     {
         $this->app->singleton(TradeCenterService::class, function () {
-            return new TradeCenterService(env('TRADE_CENTER_BASE_URI', $this->baseUri), $this->app->make(ServiceGuard::class));
+            return new TradeCenterService($this->getConfig()['base_uri'], $this->app->make(ServiceGuard::class));
+        });
+    }
+
+    public function registerImCenter()
+    {
+        $this->app->singleton(IMCenterService::class, function () {
+            return new IMCenterService($this->getConfig()['base_uri'], $this->app->make(ServiceGuard::class));
         });
     }
 
@@ -64,6 +96,7 @@ class ServiceProvider extends BaseServiceProvider
         $this->app->singleton(Encoder::class, function () {
             return new Base64UrlSafeEncoder();
         });
+
 
         $this->app->singleton(ParserManager::class, function () {
             return new ParserManager(
@@ -80,14 +113,17 @@ class ServiceProvider extends BaseServiceProvider
         $this->app->singleton(JWTManager::class, function () {
             /** @var Base64UrlSafeEncoder $encoder */
             $encoder = $this->app->make(Encoder::class);
+            $config  = $this->getConfig();
+            $default = $this->app->make(Request::class)->header($config['app_header'], $config['default']);
+
             return new JWTManager(
-                new UserCenterEncrypter(env('USER_CENTER_APP_SECRET'), $encoder),
+                new UserCenterEncrypter($config['applications'][$default]['secret'], $encoder),
                 $encoder
             );
         });
 
         $this->app->singleton(UserCenterService::class, function () {
-            return new UserCenterService($this->baseUri, $this->app->make(ServiceGuard::class));
+            return new UserCenterService($this->getConfig()['base_uri'], $this->app->make(ServiceGuard::class));
         });
 
         $this->registerUserCenterAuth();
@@ -106,7 +142,5 @@ class ServiceProvider extends BaseServiceProvider
                 $app->make(Request::class)
             );
         });
-
-
     }
 }
