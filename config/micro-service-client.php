@@ -16,16 +16,16 @@ return [
     'base_uri'            => env('MICRO_SERVICE_BASE_URI'),
 
     // 交易服务前缀
-    'trade_center_prefix' => env('MICRO_SERVICE_TRADE_CENTER_PREFIX'),
+    'trade_center_prefix' => env('MICRO_SERVICE_TRADE_CENTER_PREFIX', 'settlement-internal'),
 
     // 用户服务前缀
-    'user_center_prefix'  => env('MICRO_SERVICE_USER_CENTER_PREFIX'),
+    'user_center_prefix'  => env('MICRO_SERVICE_USER_CENTER_PREFIX', 'ucenter-internal'),
 
     // 应用服务前缀
-    'app_center_prefix'   => env('MICRO_SERVICE_APP_CENTER_PREFIX'),
+    'app_center_prefix'   => env('MICRO_SERVICE_APP_CENTER_PREFIX', 'application'),
 
     // im 服务前缀
-    'im_center_prefix'    => env('MICRO_SERVICE_IM_CENTER_PREFIX'),
+    'im_center_prefix'    => env('MICRO_SERVICE_IM_CENTER_PREFIX', 'im'),
 
     // 应用
     'applications'        => [

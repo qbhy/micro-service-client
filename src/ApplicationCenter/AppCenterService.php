@@ -18,7 +18,7 @@ class AppCenterService extends Service
 
     public function getServiceName(): string
     {
-        return config('micro-service-client.app_center_prefix', 'application');
+        return config('micro-service-client.app_center_prefix');
     }
 
 }
