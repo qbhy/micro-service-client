@@ -23,6 +23,15 @@ class ServiceProvider extends BaseServiceProvider
 {
     protected $config;
 
+    protected function getConfig()
+    {
+        if (null === $this->config) {
+            $this->config = $this->app->make('config')->get('micro-service-client');
+        }
+
+        return $this->config;
+    }
+
     /**
      * Setup the config.
      */
@@ -37,13 +46,16 @@ class ServiceProvider extends BaseServiceProvider
         $this->mergeConfigFrom($source, 'micro-service-client');
     }
 
-    protected function getConfig()
+    protected function getAppConfig($name = null)
     {
-        if (null === $this->config) {
-            $this->config = $this->app->make('config')->get('micro-service-client');
+        $config  = $this->getConfig();
+        $default = $name ?? $this->app->make(Request::class)->header($config['app_header'], $config['default']);
+
+        if (isset($config['applications'][$default])) {
+            return $config['applications'][$default];
         }
 
-        return $this->config;
+        throw new ApplicationException("不支持 {$default} 应用");
     }
 
     /**
@@ -57,9 +69,7 @@ class ServiceProvider extends BaseServiceProvider
 
         $this->app->singleton(ServiceGuard::class, function () {
 
-            $config    = $this->getConfig();
-            $default   = $this->app->make(Request::class)->header($config['app_header'], $config['default']);
-            $appConfig = $config['applications'][$default];
+            $appConfig = $this->getAppConfig();
 
             return new ServiceGuard($appConfig['id'], $appConfig['secret'], $appConfig['token']);
         });
@@ -113,11 +123,9 @@ class ServiceProvider extends BaseServiceProvider
         $this->app->singleton(JWTManager::class, function () {
             /** @var Base64UrlSafeEncoder $encoder */
             $encoder = $this->app->make(Encoder::class);
-            $config  = $this->getConfig();
-            $default = $this->app->make(Request::class)->header($config['app_header'], $config['default']);
 
             return new JWTManager(
-                new UserCenterEncrypter($config['applications'][$default]['secret'], $encoder),
+                new UserCenterEncrypter($this->getAppConfig()['secret'], $encoder),
                 $encoder
             );
         });
