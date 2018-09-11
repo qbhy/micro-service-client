@@ -1,0 +1,26 @@
+{
+    "name": "96qbhy/micro-service-client",
+    "authors": [
+        {
+            "name": "96qbhy",
+            "email": "96qbhy@mmail.com"
+        }
+    ],
+    "description": "微服务客户端",
+    "require": {
+        "php": ">=7.1",
+        "guzzlehttp/guzzle": "^6.3",
+        "96qbhy/simple-jwt": "^0.0.3"
+    },
+    "autoload": {
+        "psr-4": {
+            "Qbhy\\MicroServiceClient\\": "src"
+        },
+        "files": [
+            "src/helper.php"
+        ]
+    },
+    "require-dev": {
+        "laravel/lumen-framework": "^5.7"
+    }
+}
