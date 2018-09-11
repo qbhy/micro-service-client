@@ -13,7 +13,7 @@ namespace Qbhy\MicroServiceClient\UserCenter\JwtParser;
 
 use Illuminate\Http\Request;
 
-class RouteParams implements \App\Services\UserCenter\Parser
+class RouteParams implements \Qbhy\MicroServiceClient\UserCenter\Parser
 {
     use KeyTrait;
 

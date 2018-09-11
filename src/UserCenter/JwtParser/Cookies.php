@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace AQbhy\MicroServiceClient\UserCenter\JwtParser;
+namespace Qbhy\MicroServiceClient\UserCenter\JwtParser;
 
 use Qbhy\MicroServiceClient\UserCenter\Parser;
 use Illuminate\Http\Request;

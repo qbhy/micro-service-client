@@ -13,14 +13,14 @@ namespace Qbhy\MicroServiceClient\UserCenter\JwtParser;
 
 use Illuminate\Http\Request;
 
-class QueryString implements \App\Services\UserCenter\Parser
+class QueryString implements \Qbhy\MicroServiceClient\UserCenter\Parser
 {
     use KeyTrait;
 
     /**
      * Try to parse the token from the request query string.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \Illuminate\Http\Request $request
      *
      * @return null|string
      */
