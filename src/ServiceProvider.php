@@ -39,7 +39,7 @@ class ServiceProvider extends BaseServiceProvider
 
     protected function getConfig()
     {
-        if (null !== $this->config) {
+        if (null === $this->config) {
             $this->config = $this->app->make('config')->get('micro-service-client');
         }
 
