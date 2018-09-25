@@ -69,5 +69,12 @@ trait TradeableTrait
         $this->save();
     }
 
+    public function saveTransferInfo(array $paymentInfo)
+    {
+        $this->trade_center_trade_id   = $paymentInfo['code'];
+        $this->trade_center_payment_id = $paymentInfo['transfer_id'];
+        $this->save();
+    }
+
 
 }
