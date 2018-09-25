@@ -24,5 +24,6 @@ interface TradeableOrder
 
     public function savePaymentInfo(array $paymentInfo);
 
+    public function saveTransferInfo(array $paymentInfo);
 
 }
