@@ -54,7 +54,7 @@ class TradeCenterService extends Service
     public function transfer(TradeableOrder $order, UserCenterSubject $user): array
     {
         try {
-            $transferInfo = $this->request('/wechat-transfer', [
+            $params       = [
                 'amount'       => $order->getPaymentFee(),
                 'description'  => $order->getBody(),
                 'out_trade_no' => $order->getOutTradeNo(),
@@ -64,6 +64,9 @@ class TradeCenterService extends Service
                 'part_index'   => $user->getPartIndex(),
                 'check_name'   => $user->isCheckName(),
                 'real_name'    => $user->getRealName(),
+            ];
+            $transferInfo = $this->request('post', '/wechat-transfer', [
+                RequestOptions::JSON => $params
             ]);
 
             $order->saveTransferInfo($transferInfo);
