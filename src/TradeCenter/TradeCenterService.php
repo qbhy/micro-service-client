@@ -66,7 +66,7 @@ class TradeCenterService extends Service
                 'real_name'    => $user->getRealName(),
             ]);
 
-            $order->saveTransferInfo($transferInfo);
+            $order->savePaymentInfo($transferInfo);
 
             return $transferInfo;
         } catch (\Exception $exception) {
