@@ -18,4 +18,8 @@ interface UserCenterSubject
 
     public function getPartIndex();
 
+    public function getRealName();
+
+    public function isCheckName();
+
 }

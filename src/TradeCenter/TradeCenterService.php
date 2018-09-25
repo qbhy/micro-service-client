@@ -48,13 +48,30 @@ class TradeCenterService extends Service
      *
      * @param TradeableOrder $order
      *
-     * @return string
+     * @return array
+     * @throws TransferException
      */
-    public function transfer(TradeableOrder $order): string
+    public function transfer(TradeableOrder $order, UserCenterSubject $user): array
     {
-        // 接入交易中心获取支付数据
+        try {
+            $transferInfo = $this->request('/wechat-transfer', [
+                'amount'       => $order->getPaymentFee(),
+                'description'  => $order->getBody(),
+                'out_trade_no' => $order->getOutTradeNo(),
+                'client_ip'    => $order->getClientIp(),
+                'guid'         => $user->getGuid(),
+                'iuid'         => $user->getIuid(),
+                'part_index'   => $user->getPartIndex(),
+                'check_name'   => $user->isCheckName(),
+                'real_name'    => $user->getRealName(),
+            ]);
 
-        return 'transfering bank';
+            $order->saveTransferInfo($transferInfo);
+
+            return $transferInfo;
+        } catch (\Exception $exception) {
+            throw new TransferException($exception->getMessage());
+        }
     }
 
     /**

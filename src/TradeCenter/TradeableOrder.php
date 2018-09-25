@@ -24,4 +24,6 @@ interface TradeableOrder
     public function getClientIp();
 
     public function savePaymentInfo(array $paymentInfo);
+
+    public function saveTransferInfo(array $transferInfo);
 }
