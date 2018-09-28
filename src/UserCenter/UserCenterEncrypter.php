@@ -20,7 +20,7 @@ class UserCenterEncrypter extends AbstractEncrypter
 
     public function __construct(Config $config, Encoder $encoder = null)
     {
-        parent::__construct(null);
+        parent::__construct('');
         $this->encoder = $encoder ?? new Base64UrlSafeEncoder();
         $this->config  = $config;
     }
