@@ -21,12 +21,18 @@ use \Qbhy\MicroServiceClient\UserCenter\JwtParser\Parser as ParserManager;
 
 class ServiceProvider extends BaseServiceProvider
 {
+    /**
+     * @var Config
+     */
     protected $config;
 
     protected function getConfig()
     {
         if (null === $this->config) {
-            $this->config = $this->app->make('config')->get('micro-service-client');
+            $config            = $this->app->make('config')->get('micro-service-client');
+            $default           = $this->app->make(Request::class)->header($config['app_header'], $config['default']);
+            $config['default'] = $default;
+            $this->config      = new Config($config);
         }
 
         return $this->config;
@@ -46,18 +52,6 @@ class ServiceProvider extends BaseServiceProvider
         $this->mergeConfigFrom($source, 'micro-service-client');
     }
 
-    protected function getAppConfig($name = null)
-    {
-        $config  = $this->getConfig();
-        $default = $name ?? $this->app->make(Request::class)->header($config['app_header'], $config['default']);
-
-        if (isset($config['applications'][$default])) {
-            return $config['applications'][$default];
-        }
-
-        throw new ApplicationException("不支持 {$default} 应用");
-    }
-
     /**
      * Register any application services.
      *
@@ -67,11 +61,12 @@ class ServiceProvider extends BaseServiceProvider
     {
         $this->setupConfig();
 
+        $this->app->singleton(Config::class, function () {
+            return $this->getConfig();
+        });
+
         $this->app->singleton(ServiceGuard::class, function () {
-
-            $appConfig = $this->getAppConfig();
-
-            return new ServiceGuard($appConfig['id'], $appConfig['secret'], $appConfig['token']);
+            return new ServiceGuard($this->app->make(Config::class));
         });
 
         $this->registerUserCenter();
@@ -107,7 +102,6 @@ class ServiceProvider extends BaseServiceProvider
             return new Base64UrlSafeEncoder();
         });
 
-
         $this->app->singleton(ParserManager::class, function () {
             return new ParserManager(
                 $this->app->make(Request::class),
@@ -125,7 +119,7 @@ class ServiceProvider extends BaseServiceProvider
             $encoder = $this->app->make(Encoder::class);
 
             return new JWTManager(
-                new UserCenterEncrypter($this->getAppConfig()['secret'], $encoder),
+                new UserCenterEncrypter($this->app->make(Config::class), $encoder),
                 $encoder
             );
         });

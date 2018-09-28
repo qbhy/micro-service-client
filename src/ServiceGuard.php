@@ -27,11 +27,37 @@ class ServiceGuard
      */
     protected $token;
 
-    public function __construct(string $appId, string $secret, string $token)
+    /**
+     * @var Config 完整的配置
+     */
+    protected $config;
+
+    public function __construct(Config $config)
     {
-        $this->appId  = $appId;
-        $this->secret = $secret;
-        $this->token  = $token;
+        $this->config = $config;
+        $appConfig    = $this->config->getAppConfig();
+        $this->appId  = $appConfig['id'];
+        $this->secret = $appConfig['secret'];
+        $this->token  = $appConfig['token'];
+    }
+
+    /**
+     * 切换APP
+     *
+     * @param string $name
+     *
+     * @return $this
+     * @throws ApplicationException
+     */
+    public function use(string $name)
+    {
+        $config       = $this->config->getAppConfig($name);
+        $this->appId  = $config['id'];
+        $this->secret = $config['secret'];
+        $this->token  = $config['token'];
+        $this->config->offsetSet('default', $name);
+
+        return $this;
     }
 
     public function authorization()

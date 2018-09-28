@@ -7,7 +7,7 @@
 
 namespace Qbhy\MicroServiceClient\UserCenter;
 
-
+use Qbhy\MicroServiceClient\Config;
 use Qbhy\SimpleJwt\AbstractEncrypter;
 use Qbhy\SimpleJwt\Encoders\Base64UrlSafeEncoder;
 use Qbhy\SimpleJwt\Interfaces\Encoder;
@@ -16,15 +16,18 @@ class UserCenterEncrypter extends AbstractEncrypter
 {
     protected $encoder;
 
-    public function __construct(string $secret, Encoder $encoder = null)
+    protected $config;
+
+    public function __construct(Config $config, Encoder $encoder = null)
     {
-        parent::__construct($secret);
+        parent::__construct(null);
         $this->encoder = $encoder ?? new Base64UrlSafeEncoder();
+        $this->config  = $config;
     }
 
     public function signature(string $signatureString): string
     {
-        return $this->encoder->encode(hash_hmac('SHA256', $signatureString, $this->secret, true));
+        return $this->encoder->encode(hash_hmac('SHA256', $signatureString, $this->config->getAppConfig()['secret'], true));
     }
 
     public static function alg(): string
