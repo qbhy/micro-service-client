@@ -10,7 +10,7 @@
     "require": {
         "php": ">=7.1",
         "guzzlehttp/guzzle": "^6.3",
-        "96qbhy/simple-jwt": "^0.0.4"
+        "96qbhy/simple-jwt": "dev-master"
     },
     "autoload": {
         "psr-4": {
